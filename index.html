@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>School Reception</title>
+<style>
+h1 { color: red;
+font-size: 500%;
+text-align: center;
+}
+// * { outline: #ffffff solid 1px }
+body { background-color: black; color: white; overflow: hidden;}
+#leftbar { float: left; width:20%;}
+#computers { float: left; width:100%; height:315px;}
+#computers iframe { width:100%; height:100%; overflow: hidden; border:0}
+#calendar { float: left; width:100%; height:315px;}
+#calendar iframe { width:100%; height:100%; overflow: hidden; border:0}
+#timeinfo { font-size: 250%; text-align: center;}
+#weather { float: right; width:16%}
+#weather iframe { width:100%; height:100%; overflow: hidden; border:0; align:right}
+#clock { color: cyan; }
+#lesson { color: green; }
+
+#slideshow { float:left; overflow: hidden; width:64%; height:800px;}
+#slideshow iframe { width:100%; height:100%; overflow: hidden; border:0; margin:0; scrolling:no}
+</style>
+<script>
+tday = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+tmonth = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+lessons = [[8,50,"Morning tutor time"],[9,15,"Period 1"],[10,0,"Period 2"],[10,45,"Break"],[11,0,"Period 3"],
+		   [11,45,"Period 4"],[12,30,"Lunch 1"],[12,50,"Lunch 2"],[13,15,"Afternoon registration"],[13,25,"Period 5"],
+		   [14,10,"Period 6"],[15,5,"Afternoon tutor time"],[15,30,"Home time"],[23,59,"Tomorrow"]
+		  ]
+current_lesson = 0
+
+function init() {
+  var today = new Date();
+  var h = today.getHours();
+	var m = today.getMinutes();
+	var s = today.getSeconds();
+ 	for (x in lessons) {
+		lesson_text = checkLesson(h,m,s);
+	}
+	startTime();
+}
+
+function startTime() {
+    var today = new Date();
+    var month = today.getMonth();
+    var day = today.getDay();
+    var date = today.getDate();
+    var year = today.getFullYear();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+	  lesson_text = checkLesson(h,m,s);
+    h = checkTime(h);
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('clock').innerHTML =
+    tday[day] + ", " + tmonth[month] + " " + date + nth(date) + " " + year +" " + h + ":" + m; // + ":" + s;
+	  document.getElementById('lesson').innerHTML = lesson_text;
+    var t = setTimeout(startTime, 1000);
+}
+function checkLesson(h,m,s) {
+	if ((lessons[current_lesson+1][0] < h) || (lessons[current_lesson+1][0]==h && lessons[current_lesson+1][1] <= m)) {
+			current_lesson += 1;
+			if (current_lesson >= lessons.length-1) current_lesson = 0;
+	}
+	return "Currently: " + lessons[current_lesson][2] + ". Time to " + lessons[current_lesson+1][2] +": " + timeDiff(lessons[current_lesson+1][0],lessons[current_lesson+1][1],h,m);
+}
+
+function timeDiff(h2,m2,h1,m1) {
+	h = h2-h1;
+	m = m2-m1;
+	if (m<0) {
+		m += 60;
+		h -= 1;
+	}
+	return h + ":" + checkTime(m);
+}
+
+function checkTime(i) {
+    if (i < 10) {i = "0" + i;}  // add zero in front of numbers < 10
+    return i;
+}
+
+function nth(d) {
+  if (d > 3 && d < 21) return "th";
+	switch (d % 10) {
+	    case 1: return "st";
+		  case 2: return "nd";
+		  case 3: return "rd";
+		  default: return "th";
+	}
+}
+</script>
+</head>
+<body onload="init()">
+<h1>Welcome to The School</h1>
+<div id="timeinfo"><span id="clock"></span> <span id="lesson"</span></div>
+<div id="leftbar">
+<div id="computers">
+<iframe src="http://1.2.3.4:8181/default.html" scrolling="no"></iframe>
+</div>
+<br>
+<div id="calendar">
+<iframe src="https://calendar.google.com/calendar/embed?showTitle=0&amp;showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;mode=AGENDA&amp;height=200&amp;wkst=1&amp;bgcolor=%23000000&amp;src=something.group.calendar.google.com&amp;color=%23711616&amp;ctz=Europe%2FLondon" style="border:solid 1px #777" width="350" height="200" frameborder="0" scrolling="no"></iframe></div>
+</div>
+</div>
+<div id="slideshow">
+<iframe src="slideshow.html"></iframe>
+</div>
+<div id="weather">
+<script type="text/javascript">
+moWWidgetParams="moAllowUserLocation:false~moBackgroundColour:black~moColourScheme:black~moDays:3~moDomain:www.metoffice.gov.uk~moFSSI:350146~moListStyle:vertical~moMapDisplay:bottom~moMapsRequired:CloudAndRain~moShowFeelsLike:true~moShowUV:true~moShowWind:true~moSpecificHeight:460~moSpecificWidth:310~moSpeedUnits:M~moStartupLanguage:en~moTemperatureUnits:C~moTextColour:white~moGridParams:weather,temperature,wind,feelslike,warnings~";
+</script>
+<script type="text/javascript" src="http://www.metoffice.gov.uk/public/pws/components/yoursite/loader.js">
+</script>
+</div>
+<div id="news">
+<!-- start feedwind code --><iframe  height="400"  width="300" src="http://feed.mikle.com/widget/?rssmikle_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml%3Fedition%3Duk&rssmikle_frame_width=300&rssmikle_frame_height=400&frame_height_by_article=0&rssmikle_target=_blank&rssmikle_font=Arial%2C%20Helvetica%2C%20sans-serif&rssmikle_font_size=12&rssmikle_border=off&responsive=off&text_align=left&text_align2=left&corner=off&scrollbar=off&autoscroll=off&scrolldirection=up&scrollstep=3&mcspeed=20&sort=Off&rssmikle_title=off&rssmikle_title_bgcolor=%230066FF&rssmikle_title_color=%23FFFFFF&rssmikle_item_bgcolor=%23000000&rssmikle_item_title_length=55&rssmikle_item_title_color=%2300C3FF&rssmikle_item_border_bottom=on&rssmikle_item_description=title_only&item_link=off&rssmikle_item_description_length=150&rssmikle_item_description_color=%23666666&rssmikle_item_date=gl1&rssmikle_timezone=Etc%2FGMT&datetime_format=%25b%20%25e%2C%20%25Y%20%25l%3A%25M%20%25p&item_description_style=text&item_thumbnail=full&item_thumbnail_selection=auto&article_num=15&rssmikle_item_podcast=off&" scrolling="no" name="rssmikle_frame" marginwidth="0" marginheight="0" vspace="0" hspace="0" frameborder="0"></iframe><div style="font-size:10px; text-align:center; width:300px;"><a href="http://feed.mikle.com/" target="_blank" style="color:#CCCCCC;">RSS Feed Widget</a><!--Please display the above link in your web page according to Terms of Service.--></div><!-- end feedwind code --><!--  end  feedwind code --></div>
