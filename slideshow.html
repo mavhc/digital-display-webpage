@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" />
+<title>Read File (via AJAX)</title>
+<style type="text/css">
+body { margin:0 }
+img { border: 0; }
+img.centered {
+    max-width: 100%;
+    max-height: 100%;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+</style>
+<script type="text/javascript">
+"use strict";
+var reader = new XMLHttpRequest();
+var interval = 2000;
+var imageDir = "photos/";
+var imageNum = 0;
+var totalImages = 1;
+var totalCachedImages = 1;
+
+var cachedImageNum = 0;
+var cachedImageArray = [];
+var imageArray = [];
+var	recur_call;
+var timerId;
+
+function loadFile() {
+    reader.open('get', 'photolist.txt', true);
+    reader.onreadystatechange = displayContents;
+    reader.send(null);
+}
+
+function displayContents() {
+    if(reader.readyState == 4) {
+		var photos = reader.responseText.split("\r\n");
+		var item;
+		
+		for (item in photos) {
+		    imageArray.push(imageDir + photos[item]);
+		}
+		imageArray.pop(); // remove blank line from end of photolist.txt
+		
+		var cachedPhotos = photos.slice(0,2);
+
+		for (item in cachedPhotos) {
+		    cachedImageArray.push(new cachedImageItem(imageDir + cachedPhotos[item]));
+		}
+		totalImages = imageArray.length;
+		totalCachedImages = cachedImageArray.length;
+
+		switchImage('slideImg');
+    }
+}
+
+function imageItem(image_location) {
+  this.image_item = new Image();
+	this.image_item.src = image_location;
+}
+
+function cachedImageItem(image_location) {
+  this.image_item = new Image();
+	this.image_item.src = image_location;
+}
+
+function get_ImageItemLocation(imageObj) {
+  return(imageObj.image_item.src);
+}
+
+function getNextImage() {
+  imageNum = (imageNum + 1) % totalImages;
+	var new_image = get_ImageItemLocation(imageArray[imageNum]);
+	return(new_image);
+}
+
+function getNextCachedImage() {
+  cachedImageNum = (cachedImageNum + 1) % totalCachedImages;
+  imageNum = (imageNum + 1) % totalImages;
+	var cached_image = cachedImageArray[cachedImageNum];
+	cached_image.image_item.src = imageArray[imageNum];
+	var new_image = get_ImageItemLocation(cachedImageArray[cachedImageNum]);
+	//new_image.image_item.src = new_image.image_item.my_src;
+	return(new_image);
+}
+
+function switchImage(place) {
+  var new_image = getNextCachedImage();
+	document[place].src = new_image;
+	recur_call = "switchImage('"+place+"')";
+	timerId = setTimeout(recur_call, interval);
+}
+</script>
+</head>
+<body onload="loadFile()">
+<div id="main">
+</div>
+
+<img name="slideImg" id="slideImg" alt="slideshow image" class="centered" src="blank.jpg">
+</body>
+</html>
